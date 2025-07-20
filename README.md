@@ -1,11 +1,5 @@
 ---
 
-## Here’s What Will Look Clean and Well-Formatted on GitHub
-
-**Copy and paste the following into your README.md file:**
-
----
-
 # Product Analyzer
 
 An AI-powered multimodal classification project that analyzes both images and text to predict product categories.  
