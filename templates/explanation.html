@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How the AI Works - Parallax Explanation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body id="explanation-page"> <div class="hamburger-menu-container">
+        <button id="hamburger-icon" aria-label="Open menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav id="mobile-nav" class="mobile-nav-hidden">
+             <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('analysis_tool') }}">Analysis Tool</a></li>
+                <li><a href="{{ url_for('explanation') }}">How it Works</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="parallax-slideshow-container page-content-wrapper"> <div class="parallax-slide topic-slide" id="topic-intro" data-background-color="intro-bg">
+            <div class="slide-content">
+                <h2>Introduction</h2>
+                <p>Welcome! This page explains the concepts behind our AI Product Analyzer. The system classifies products into one
+                    of 21 categories using both images and text descriptions. We also utilize "Explainable AI" (XAI) techniques to
+                    provide insights into how the AI reaches its conclusions, building trust and understanding.</p>
+                 
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-multimodal" data-background-color="multimodal-bg">
+            <div class="slide-content">
+                <h2>Multimodal Approach: Combining Sight and Text</h2>
+                <p>Products often have defining characteristics in both their appearance and their descriptions. Relying solely on
+                    an image might miss crucial details mentioned in the text (like specific features or materials), while text
+                    alone cannot capture the visual design or appearance. Our AI employs a <strong>multimodal approach</strong>,
+                    processing both the image and the text (title + description) together.</p>
+                <p>This synergy allows the AI to build a more complete and nuanced understanding of the product, leading to
+                    significantly more accurate classification than if it only used one type of information.</p>
+                
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-image-pathway">
+            <div class="slide-content">
+                <h2>Image Pathway: Understanding Visuals with EfficientNet-Lite B0</h2>
+                <p>How does the AI "see" the image? We use a powerful, pre-trained <strong>Convolutional Neural
+                        Network (CNN)</strong> called <code>EfficientNet-Lite B0</code>.This model is designed to extract important features from images, such as shapes, colors, and textures. It does
+                    this by applying a series of filters to the image, each filter designed to detect specific patterns.</p>
+                <img src="{{ url_for('static', filename='images/EfficientNet.png') }}" alt="EfficientNet Architecture" class="topic-image">
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-text-pathway">
+            <div class="slide-content">
+                <h2>Text Pathway: Understanding Language with Sentence-BERT</h2>
+                <p>To understand the product's title and description, we need to understand its meaning and context.
+                We use a pre-trained model called <strong>Sentence-BERT</strong>, which is designed to convert sentences into
+                numerical representations (embeddings) that capture their meaning.These embeddings are then passed through a <strong>Multi-Layer Perceptron (MLP)</strong> to produce a numerical
+                summary of the text.Sentence-BERT is a variant of the BERT model, which is specifically designed for generating sentence embeddings.</p>
+                <img src="{{ url_for('static', filename='images/SBERT.png') }}" alt="Sentence-BERT Process" class="topic-image">
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-fusion">
+            <div class="slide-content">
+                <h2>Fusion: Combining Insights</h2>
+                <p>At this stage, the AI has two numerical summaries: one representing the image and one representing the text...</p>
+                <p>To make a final decision, we need to combine these two summaries into a single, rich feature vector. This is done
+                    through a process called <strong>feature vector concatenation</strong>...</p>
+                <img src="{{ url_for('static', filename='images/CC.png') }}" alt="Feature Vector Concatenation" class="topic-image">
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-classification">
+            <div class="slide-content">
+                <h2>Classification Head (MLP)</h2>
+                <p>The rich, combined feature vector is then passed to the final decision-making component: a
+                    <strong>Multi-Layer Perceptron (MLP)</strong>...</p>
+                <p>This MLP is a simple yet effective neural network that takes the combined feature vector and produces a score for each of the 21 categories.</p>
+                <p>It consists of several layers of neurons, each layer transforming the input data into a more abstract representation.</p>
+                <img src="{{ url_for('static', filename='images/MLP.png') }}" alt="Multi-Layer Perceptron Architecture" class="topic-image">
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-confidence">
+            <div class="slide-content">
+                <h2>Confidence Score: How Sure is the AI?</h2>
+                <p>The raw scores produced by the MLP's final layer are converted into easy-to-understand
+                    <strong>probabilities</strong> using a function called Softmax...</p>
+                <p>This gives us a confidence score for each of the 21 categories. For example, if the AI classifies a product as
+                    "Electronics" with a confidence score of 0.85, it means the AI is 85% sure about that classification.</p>
+                     <img src="{{ url_for('static', filename='images/CON_image.png') }}" alt="Confidence Score Mechanism" class="topic-image">
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-xai-intro">
+            <div class="slide-content">
+                <h2>Explainable AI (XAI): Understanding the "Why"</h2>
+                <p>While accuracy is important, simply getting an answer from an AI isn't always enough.
+                    <strong>Explainable AI (XAI)</strong> techniques help us understand *how* these models arrive at their
+                    decisions...</p>
+                <p>For example, if the AI classifies a product as "Electronics", XAI techniques can help us understand which
+                    features (like specific words in the description or areas in the image) influenced that decision.</p>
+                <img src="{{ url_for('static', filename='images/XAI.png') }}" alt="Concept of Explainable AI" class="topic-image">
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-grad-cam" data-background-color="gradcam-bg">
+            <div class="slide-content">
+                <h2>Image Explanation: Grad-CAM</h2>
+                <p><strong>Grad-CAM (Gradient-weighted Class Activation Mapping)</strong> provides a visual explanation for the
+                    image classification...</p>
+                <p>For example, if the AI classifies a product as "Electronics", Grad-CAM might highlight areas of the image that
+                    are most relevant to that classification, such as the screen of a smartphone or the buttons on a remote control.</p>
+                <img src="{{ url_for('static', filename='images/GR.png') }}" alt="GRAD-CAM" class="topic-image">
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-lime" data-background-color="lime-bg">
+            <div class="slide-content">
+                <h2>Text Explanation: LIME</h2>
+                <p><strong>LIME (Local Interpretable Model-agnostic Explanations)</strong> explains the prediction based on the
+                    input text...</p>
+                <p>For example, if the AI classifies a product as "Electronics", LIME might highlight words like "wireless" or
+                    "Bluetooth" in the description, indicating these were key factors in the decision.</p>
+                <img src="{{ url_for('static', filename='images/LIME.png') }}" alt="LIME" class="topic-image"></p>
+            </div>
+        </div>
+        <div class="parallax-slide topic-slide" id="topic-conclusion" data-background-color="conclusion-bg">
+            <div class="slide-content">
+                <h2>Conclusion</h2>
+                <p>By combining sophisticated image (<code>EfficientNet-Lite B0</code>) and text (<code>Sentence-BERT</code>)
+                    understanding, fusing their insights, and classifying with a trained MLP, our AI provides accurate product
+                    categorization...</p>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hamburger Menu JS (same as home.html)
+        const hamburgerIcon = document.getElementById('hamburger-icon');
+        const mobileNav = document.getElementById('mobile-nav');
+        const body = document.body;
+
+        hamburgerIcon.addEventListener('click', () => {
+            const isExpanded = hamburgerIcon.getAttribute('aria-expanded') === 'true' || false;
+            hamburgerIcon.setAttribute('aria-expanded', !isExpanded);
+            mobileNav.classList.toggle('mobile-nav-visible');
+            body.classList.toggle('no-scroll', !isExpanded);
+        });
+
+        mobileNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerIcon.setAttribute('aria-expanded', 'false');
+                mobileNav.classList.remove('mobile-nav-visible');
+                body.classList.remove('no-scroll');
+            });
+        });
+
+        // Existing Intersection Observer for slide animations
+        const sectionsToObserve = document.querySelectorAll('.topic-slide');
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                } else {
+                    // entry.target.classList.remove('visible'); // Optional: re-animate on scroll away
+                }
+            });
+        };
+        const scrollObserver = new IntersectionObserver(observerCallback, observerOptions);
+        sectionsToObserve.forEach(section => {
+            scrollObserver.observe(section);
+        });
+    </script>
+</body>
+</html>

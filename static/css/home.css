@@ -1,0 +1,108 @@
+/* static/css/home.css */
+
+/* --- Configuration: CSS Variables (Copied for self-containment, or import from style.css if preferred) --- */
+:root {
+    --primary-color: #007bff;
+    --primary-dark: #0056b3; /* Used for Dark Blue */
+    --background-color: #121212; /* Used for Black */
+    --surface-color: #1e1e1e;
+    --text-color: #f0f0f0;
+    /* --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */ /* Poppins is now in style.css */
+    --font-home-title: 'Montserrat', sans-serif; /* New stylish font for home page title */
+    /* Alternative: --font-home-title: 'Montserrat', sans-serif; */
+    --transition-speed: 0.3s;
+}
+
+/* --- Base Styles for Home Page --- */
+/* Import the new font for the title */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+/* Alternative: @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap'); */
+/* Ensure Poppins is imported in style.css if other text on home.html (like menu) uses it */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap'); /* For menu items if not covered by style.css */
+
+
+body#home-page {
+    font-family: 'Poppins', sans-serif; /* Fallback or general font for home page if needed */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--primary-dark);
+    color: var(--text-color);
+}
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
+.home-top-half,
+.home-bottom-half {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.home-top-half {
+    background-color: var(--primary-dark); /* Dark Blue */
+}
+
+.home-bottom-half {
+    background-color: var(--background-color); /* Black */
+}
+
+/* Dividing line REMOVED */
+/*
+.home-container::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--text-color);
+    transform: translateY(-50%);
+    z-index: 1;
+}
+*/
+
+.title-top,
+.title-bottom {
+    margin: 0;
+    font-family: var(--font-home-title); /* APPLYING THE NEW FONT */
+    font-size: clamp(3rem, 10vw, 7rem); /* Slightly increased max size for impact */
+    font-weight: 700; /* Bold weight for Playfair Display or Montserrat */
+    position: relative;
+    z-index: 2;
+    line-height: 1; /* Adjusted for tighter line height with display fonts */
+    letter-spacing: 1px; /* Optional: slight letter spacing */
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* Optional: subtle text shadow for depth */
+}
+
+.title-top {
+    color: var(--background-color); /* Black text on dark blue background */
+    align-self: flex-end;
+    padding-bottom: 0.02em; /* Fine-tune gap */
+}
+
+.title-bottom {
+    color: var(--primary-dark); /* Dark Blue text on black background */
+    align-self: flex-start;
+    padding-top: 0.02em; /* Fine-tune gap */
+}
+
+/* Hamburger Menu Styles (These should be in style.css if global, but if home.css is standalone for home page) */
+/* Assuming hamburger styles are now globally in style.css, so not repeated here unless home.css is the ONLY css for home.html */
+/* If style.css is NOT linked on home.html, then copy the hamburger menu styles here too. */
+/* For now, assuming style.css IS linked for global elements like menu font, variables etc. */
+

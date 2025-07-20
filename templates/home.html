@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - AI Product Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body id="home-page">
+
+    <div class="hamburger-menu-container">
+        <button id="hamburger-icon" aria-label="Open menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav id="mobile-nav" class="mobile-nav-hidden">
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('analysis_tool') }}">Analysis Tool</a></li>
+                <li><a href="{{ url_for('explanation') }}">How it Works</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="home-container">
+        <div class="home-top-half">
+            <h1 class="title-top">AI Product</h1>
+        </div>
+        <div class="home-bottom-half">
+            <h1 class="title-bottom">Analyzer</h1>
+        </div>
+    </div>
+
+    <script>
+        const hamburgerIcon = document.getElementById('hamburger-icon');
+        const mobileNav = document.getElementById('mobile-nav');
+        const body = document.body;
+
+        hamburgerIcon.addEventListener('click', () => {
+            const isExpanded = hamburgerIcon.getAttribute('aria-expanded') === 'true' || false;
+            hamburgerIcon.setAttribute('aria-expanded', !isExpanded);
+            mobileNav.classList.toggle('mobile-nav-visible');
+            // Optional: Add a class to body to prevent scrolling when menu is open
+            body.classList.toggle('no-scroll', !isExpanded);
+        });
+
+        mobileNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerIcon.setAttribute('aria-expanded', 'false');
+                mobileNav.classList.remove('mobile-nav-visible');
+                body.classList.remove('no-scroll');
+            });
+        });
+    </script>
+</body>
+</html>

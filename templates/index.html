@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal Product Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body id="analysis-page">
+
+    <div class="hamburger-menu-container">
+        <button id="hamburger-icon" aria-label="Open menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav id="mobile-nav" class="mobile-nav-hidden">
+             <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('analysis_tool') }}">Analysis Tool</a></li>
+                <li><a href="{{ url_for('explanation') }}">How it Works</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container page-content-wrapper analysis-dashboard">
+        <header class="dashboard-header">
+            <h1>Product Analyzer</h1>
+            <p>Upload an image and description to classify your product and understand the AI's reasoning.</p>
+        </header>
+
+        <section class="input-section card">
+             <h2><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg> Submit Product Information</h2>
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="imageFile">Product Image:</label>
+                    <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Product Title & Description:</label>
+                    <textarea id="description" name="description"
+                        placeholder="E.g., 'Organic Cotton Baby Onesie, Soft and Breathable, 0-3 Months, White'" required></textarea>
+                </div>
+                <button type="submit" class="button-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    Analyze Product
+                </button>
+            </form>
+        </section>
+
+        <div id="loading-indicator" class="loading hidden">
+            <div class="spinner"></div>
+            <h3>Analyzing... Please Wait</h3>
+        </div>
+
+        <div id="error-message" class="error-box hidden"></div>
+
+        <section id="results-section" class="results-section hidden">
+             <h2><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Analysis Results</h2>
+            <div class="results-grid">
+                <div class="result-card card prediction-card">
+                    <h3>Predicted Category</h3>
+                    <p id="predicted-category" class="category-text">N/A</p>
+                    <p class="confidence-numeric">Confidence: <span id="confidence-numeric-value">N/A</span></p>
+                </div>
+
+                <div class="result-card card metrics-card">
+                    <h3>Performance</h3>
+                     <div class="metric-display">
+                        <span class="metric-value-large" id="processing-time">N/A</span>
+                        <span class="metric-label">Processing Time (ms)</span>
+                    </div>
+                </div>
+
+                <div class="result-card card input-display">
+                    <h3>Input Summary</h3>
+                    <p><strong>Original Image:</strong></p>
+                    <img id="original-image" src="#" alt="Original Product Image" style="display: none;">
+                    <p><strong>Input Text:</strong></p>
+                    <p id="input-text-display" class="input-text-preview"></p>
+                </div>
+
+                <div class="result-card card xai-visuals">
+                    <h3>Image Explanation (Grad-CAM)</h3>
+                    <div class="image-comparison">
+                        <div class="image-container">
+                            <img id="original-image-thumb" src="#" alt="Original Input" style="display: none;">
+                            <span class="image-label">Original</span>
+                        </div>
+                        <div class="image-container">
+                            <img id="gradcam-image" src="#" alt="Grad-CAM Heatmap Overlay" style="display: none;">
+                             <span class="image-label">Grad-CAM Overlay</span>
+                        </div>
+                    </div>
+                     <p class="xai-subtext"><small><i>Regions highlighted contributed most to the prediction. Hover overlay for detail.</i></small></p>
+                </div>
+
+                <div class="result-card card xai-text full-width-card">
+                    <h3>Text Explanation (LIME)</h3>
+                    <p class="xai-subtext">Words highlighted below influenced the prediction (Green = Positive, Red = Negative, intensity varies).</p>
+                    <div id="lime-explanation">
+                        (Explanation will appear here)
+                    </div>
+                    <p class="xai-subtext"><small><i>(Note: LIME explains local model behavior around this specific prediction)</i></small></p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Hamburger Menu JS (Keep as is)
+        const hamburgerIcon = document.getElementById('hamburger-icon');
+        const mobileNav = document.getElementById('mobile-nav');
+        const bodyEl = document.body;
+
+        if (hamburgerIcon && mobileNav) {
+            hamburgerIcon.addEventListener('click', () => {
+                const isExpanded = hamburgerIcon.getAttribute('aria-expanded') === 'true' || false;
+                hamburgerIcon.setAttribute('aria-expanded', !isExpanded);
+                mobileNav.classList.toggle('mobile-nav-visible');
+                bodyEl.classList.toggle('no-scroll', !isExpanded);
+            });
+
+            mobileNav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburgerIcon.setAttribute('aria-expanded', 'false');
+                    mobileNav.classList.remove('mobile-nav-visible');
+                    bodyEl.classList.remove('no-scroll');
+                });
+            });
+        }
+
+        // Form submission and results display
+        const form = document.getElementById('product-form');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const resultsSection = document.getElementById('results-section');
+        const errorMessageDiv = document.getElementById('error-message');
+
+        // Confidence Numeric Display Element
+        const confidenceNumericValue = document.getElementById('confidence-numeric-value');
+
+        // Processing Time Element
+        const processingTimeEl = document.getElementById('processing-time');
+        const originalImageThumb = document.getElementById('original-image-thumb');
+
+        // REMOVED Gauge related variables and setGaugeValue function
+
+        if (form) {
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                errorMessageDiv.textContent = '';
+                errorMessageDiv.classList.add('hidden');
+                resultsSection.classList.add('hidden');
+                resultsSection.classList.remove('visible');
+                loadingIndicator.classList.remove('hidden');
+
+                // Reset metrics on new submission
+                if (confidenceNumericValue) confidenceNumericValue.textContent = 'N/A';
+                if (processingTimeEl) processingTimeEl.textContent = 'N/A';
+
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch('/predict', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    loadingIndicator.classList.add('hidden');
+                    if (!response.ok) {
+                        let errorMsg = `HTTP error! Status: ${response.status}`;
+                        try {
+                            const errorData = await response.json();
+                            errorMsg = errorData.error || `Server error. Please try again.`;
+                        } catch (jsonError) {
+                            errorMsg = `Request failed: ${response.statusText || 'Unknown error'}. Please try again.`;
+                        }
+                        throw new Error(errorMsg);
+                    }
+                    const results = await response.json();
+                    if (results && results.predicted_class && results.predicted_class !== "Error") {
+                        displayResults(results);
+                    } else if (results && results.error) {
+                         throw new Error(results.error);
+                    } else if (results && results.predicted_class === "Error") {
+                         throw new Error("Prediction failed on the server.");
+                    }
+                    else {
+                        throw new Error("Received incomplete or invalid results from the server.");
+                    }
+                } catch (error) {
+                    loadingIndicator.classList.add('hidden');
+                    console.error('Error during prediction fetch or processing:', error);
+                    errorMessageDiv.textContent = `Analysis Failed: ${error.message}`;
+                    errorMessageDiv.classList.remove('hidden');
+                    resultsSection.classList.add('hidden');
+                    resultsSection.classList.remove('visible');
+                }
+            });
+        }
+
+        function displayResults(results) {
+            errorMessageDiv.classList.add('hidden');
+            document.getElementById('predicted-category').textContent = results.predicted_class || 'N/A';
+
+            // Update Confidence Numeric Value
+            const confidenceValue = results.confidence !== undefined ? results.confidence : 0;
+            if (confidenceNumericValue) {
+                confidenceNumericValue.textContent = `${(confidenceValue * 100).toFixed(1)}%`;
+            }
+
+            // Update Processing Time
+             if (processingTimeEl && results.processing_time !== undefined && results.processing_time !== null) {
+                processingTimeEl.textContent = results.processing_time.toFixed(0);
+            } else if (processingTimeEl) {
+                processingTimeEl.textContent = 'N/A';
+            }
+
+            // Display Original Image in Input Card AND Thumbnail in XAI Card
+            const originalImgTag = document.getElementById('original-image');
+            const originalThumbTag = document.getElementById('original-image-thumb');
+            if (results.original_image_b64) {
+                originalImgTag.src = results.original_image_b64;
+                originalImgTag.style.display = 'block';
+                originalImgTag.alt = "Original Product Image";
+                originalThumbTag.src = results.original_image_b64;
+                originalThumbTag.style.display = 'block';
+            } else {
+                originalImgTag.src = "#";
+                originalImgTag.style.display = 'none';
+                originalThumbTag.src = "#";
+                originalThumbTag.style.display = 'none';
+            }
+
+            // Display Input Text
+            const inputTextDisplay = document.getElementById('input-text-display');
+            if(results.input_text) {
+                inputTextDisplay.textContent = results.input_text;
+            } else {
+                inputTextDisplay.textContent = "No text provided.";
+            }
+
+            // Display Grad-CAM
+            const gradcamImgTag = document.getElementById('gradcam-image');
+            if (results.grad_cam_overlay_b64) {
+                gradcamImgTag.src = results.grad_cam_overlay_b64;
+                gradcamImgTag.style.display = 'block';
+                gradcamImgTag.alt = "Grad-CAM Overlay for " + results.predicted_class;
+            } else {
+                gradcamImgTag.src = "#";
+                gradcamImgTag.style.display = 'none';
+            }
+
+            // Render LIME explanation
+            const limeContainer = document.getElementById('lime-explanation');
+            limeContainer.innerHTML = '';
+            const inputText = results.input_text || '';
+            const limeData = results.lime_explanation || [];
+
+            if (inputText && Array.isArray(limeData) && limeData.length > 0) {
+                const wordWeights = {};
+                limeData.forEach(([word, weight]) => {
+                    if (typeof word === 'string') {
+                       wordWeights[word.toLowerCase()] = weight;
+                    }
+                });
+
+                inputText.split(/(\s+)/).filter(part => part.length > 0).forEach(part => {
+                    const word = part.trim();
+                    const lowerWord = word.toLowerCase();
+
+                    if (word && wordWeights.hasOwnProperty(lowerWord)) {
+                        const weight = wordWeights[lowerWord];
+                        const span = document.createElement('span');
+                        span.textContent = part;
+                        span.title = `LIME Weight: ${weight.toFixed(4)}`;
+                        span.classList.add('lime-highlight');
+                        const intensity = Math.max(0, Math.min(1, Math.abs(weight) * 30));
+
+                        if (weight > 0.0001) {
+                            span.classList.add('lime-positive');
+                            span.style.setProperty('--lime-intensity', intensity);
+                        } else if (weight < -0.0001) {
+                            span.classList.add('lime-negative');
+                            span.style.setProperty('--lime-intensity', intensity);
+                        }
+                        limeContainer.appendChild(span);
+                    } else {
+                        limeContainer.appendChild(document.createTextNode(part));
+                    }
+                });
+            } else if (inputText) {
+                limeContainer.textContent = inputText;
+            } else {
+                limeContainer.textContent = "(No text explanation available)";
+            }
+
+            resultsSection.classList.remove('hidden');
+            setTimeout(() => {
+                resultsSection.classList.add('visible');
+            }, 10);
+        }
+        // REMOVED gauge initialization on load
+    </script>
+</body>
+</html>
+
